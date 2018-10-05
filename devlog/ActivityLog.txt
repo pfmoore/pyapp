@@ -1,0 +1,5 @@
+Development Activities
+======================
+
+1. Create an initial empty project
+2. Add tox, a setup.py and a dummy test to confirm testing works.
