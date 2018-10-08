@@ -44,3 +44,32 @@ I'd like to be able to bundle with pyapp.
 * Pipenv - uses virtualenv, might introspect the executing Python
   interpreter as a default (so running via embedded distro may be bad).
 * Pew - virtualenv again.
+
+## Installation
+
+* `pip install pyapp` creates a `pyapp` executable. Not the "official"
+  installation method, but should work.
+* Standalone single-file `pyapp.exe` that works if Python is installed.
+* Portable `pyapp.zip` that includes a Python runtime and can be unpacked
+  anywhere.
+
+**Note**: Virtualenv build method has potential issues if used with a
+version of pyapp that bundles its own runtime, as the virtual environments
+that get created will be based on the (embedded) runtime of pyapp.
+
+## Invocation
+
+Define apps in a config file, and build with `pyapp build [app]...`.
+
+Standalone apps (zipapp model) have no further options. Upgrades, etc.,
+are handled by rebuilding.
+
+Virtualenv-based apps have further options - upgrade, etc. Maybe also
+have a management command to "run a command in the app venv"?
+
+## Limitations of other tools
+
+* We need to be able to build an app from any pip-style requirement (e.g.,
+  standalone wheel file, git URL, ...)
+* We need to support pip install options (`--find-links`, `--no-index`,
+  ...).
