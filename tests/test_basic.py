@@ -1,3 +1,3 @@
-def test_empty():
-    """An empty test, to validate tox setup"""
-    pass
+def test_import():
+    """Confirm that we can import the application"""
+    import pyapp
