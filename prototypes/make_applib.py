@@ -1,5 +1,7 @@
+import argparse
 import os
 from pathlib import Path
+import shutil
 from zipfile import ZipFile
 
 from pkg_resources import WorkingSet, Requirement
@@ -43,17 +45,52 @@ def prune(d):
     if d == '__pycache__': return True
     return False
 
-if __name__ == '__main__':
-    import sys
-    z = None
-    if len(sys.argv) > 2:
-        lib = sys.argv[2]
-        z = ZipFile(lib, "w")
-    src = Path(sys.argv[1])
-    for p in walker(src, prune=prune):
-        print(p)
-        if z: z.write(src/p, arcname=p)
+def makelib_dir(src, dst):
+    def ignore(dirname, files):
+        return [f for f in files if prune(f)]
+    shutil.copytree(src, dst, ignore=ignore)
 
-    if z:
-        z.close()
-        make_zapps(src, lib)
+def makelib_zip(src, dst):
+    src = Path(src)
+    with ZipFile(dst, "w") as z:
+        for p in walker(src, prune=prune):
+            z.write(src/p, arcname=p)
+
+def main(args=None):
+    """Run the make_applib command line interface.
+
+    The ARGS parameter lets you specify the argument list directly.
+    Omitting ARGS (or setting it to None) works as for argparse, using
+    sys.argv[1:] as the argument list.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--compress', '-c', default=True, action='store_true',
+            help="Create a zipped library file")
+    parser.add_argument('--no-compress', action='store_false', dest='compress',
+            help=argparse.SUPPRESS)
+    parser.add_argument('--lib', '-L', default=None,
+            help="The name of the library file to create.")
+    parser.add_argument('prep', default=None,
+            help="The name of the prepared distribution directory.")
+
+    args = parser.parse_args(args)
+
+    if args.lib is None:
+        if args.compress:
+            args.lib = args.prep + '.zip'
+        else:
+            args.lib = args.prep + '_lib'
+
+    print(f"args.prep={args.prep}, args.lib={args.lib}, args.compress={args.compress}")
+
+    if args.compress:
+        makelib_zip(args.prep, args.lib)
+    else:
+        makelib_dir(args.prep, args.lib)
+
+    make_zapps(args.prep, args.lib)
+
+if __name__ == '__main__':
+    main()
