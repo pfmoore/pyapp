@@ -7,5 +7,6 @@ setup(
     author_email = "p.f.moore@gmail.com",
     description = "Deploy Python applications",
     url = "https://github.com/pfmoore/pyapp",
-    packages = find_packages()
+    packages = find_packages(),
+    install_requires = ["click"]
 )
